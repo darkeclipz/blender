@@ -68,6 +68,39 @@ sun = bpy.ops.object.light_add(type='SUN', align='WORLD', location=(0, 0, 0), sc
 bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=(7.5, -7.5, 6.5), rotation=(1.04, 3.60156e-07, 0.781907), scale=(1, 1, 1))
 ```
 
+### Hilbert's fractal as a shadow effect
+
+```python
+"""
+Recursively draw shapes, and shrink the objects on each recursion depth.
+"""
+def recursive_split(x, y, z, sx, sy, sz, k):
+    
+    cube(x, y, z, sx, sy, sz)
+    active_object = bpy.context.active_object
+    r, g, b = colorsys.hsv_to_rgb(0.075 * k, 0.85, 1)
+    mat = new_material(r, g, b)
+    active_object.data.materials.append(mat)
+    
+    if k > 0:
+        for i in range(-1, 1+1, 2):
+            for j in range(-1, 1+1, 2):
+                recursive_split(
+                    x+i*sx, y+j*sy, z + 3*sz,     # (x, y, z)
+                    sx * 0.5, sy * 0.5, sz * 0.7, # (sx, sy, sz)
+                    k-1
+                )
+    
+
+
+"""
+Run the algorithm.
+"""
+recursive_split(0, 0, 0, 1, 1, 0.2, 5)
+```
+
+In this case `k = 5`, so it will draw a total of `4^5 = 1024` cubes, so this might take a while. 
+
 ## Renders
 
 See `/images` folder in this repository.
